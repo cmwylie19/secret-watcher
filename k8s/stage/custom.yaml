@@ -1,0 +1,24 @@
+resources:
+- ../base
+
+commonLabels:
+  environment: stage
+
+commonAnnotations:
+  deployed-from: <hostname>
+
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: secret-watcher
+    namespace: secret-watcher
+    labels:
+      app: secret-watcher
+  spec:
+    template:
+      spec:
+        containers:
+        - name: secret-watcher
+          image: cmwylie19/secret-watcher:arm64

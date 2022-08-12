@@ -77,16 +77,18 @@ deployer-token-rnj86
 
 _This part is only necessary if you are developing._  
 
+In the `Makefile` set `STAGE` to dev, test, or prod.
+
 Build application
 
 ```bash
-make image/secret-watcher
+make build/secret-watcher
 ```
 
-Build container image
+Build docker image
 
 ```bash
-make docker-image
+make build/image
 ```
 
 Push container image
@@ -95,10 +97,10 @@ Push container image
 make push-image
 ```
 
-Fast Build and Deploy
+Build binary, build docker image, and push the image
 
 ```bash
-make image/secret-watcher;make docker-image;make push-image
+make all
 ```
 
 
@@ -150,4 +152,17 @@ for {
 
     time.Sleep(10 * time.Second) //configurable
 }
+```
+
+## Deployment Options
+
+With label selectors for secrets
+```bash
+./secret-watcher serve -l app.kubernetes.io/managed-by=secret-watcher
+```
+
+
+Run on a given port 
+```
+./secret-watcher serve -p 9090
 ```

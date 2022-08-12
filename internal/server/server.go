@@ -22,6 +22,8 @@ var wg sync.WaitGroup
 type Server struct {
 	// Logger TODO Structured logs
 	Config *kubernetes.Clientset
+	Label  string
+	Port   string
 }
 
 func (s *Server) Init() {
@@ -53,7 +55,11 @@ func GetConfig() (*kubernetes.Clientset, error) {
 
 }
 
-func (s *Server) Serve(tlsKey, tlsCert, port, label, frequency string) error {
+func (s *Server) Serve(tlsKey, tlsCert, port, label string) error {
+
+	// Update Server struct
+	s.Port = port
+	s.Label = label
 
 	http.HandleFunc("/health", GetHealth)
 	http.HandleFunc("/secrets", s.GetSecrets)
@@ -76,11 +82,13 @@ func (s *Server) Serve(tlsKey, tlsCert, port, label, frequency string) error {
 	return nil
 }
 
-func getSecrets(secrets_chan chan string, clientset *kubernetes.Clientset, ns string) {
+func getSecrets(secrets_chan chan string, clientset *kubernetes.Clientset, ns string, label string) {
 	str_secrets := ""
 	defer wg.Done()
 
-	secrets, err := clientset.CoreV1().Secrets(ns).List(context.TODO(), metav1.ListOptions{})
+	secrets, err := clientset.CoreV1().Secrets(ns).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: label,
+	})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -100,7 +108,7 @@ func (s *Server) GetSecrets(w http.ResponseWriter, req *http.Request) {
 	secrets := make(chan string)
 	wg.Add(1)
 
-	go getSecrets(secrets, s.Config, ns)
+	go getSecrets(secrets, s.Config, ns, s.Label)
 
 	cluster_secrets := <-secrets
 	wg.Wait()

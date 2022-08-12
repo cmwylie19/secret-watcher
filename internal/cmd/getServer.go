@@ -29,12 +29,11 @@ func getServerCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := &server.Server{}
 			s.Init()
-			return s.Serve(tlsKey, tlsCert, port, label, frequency)
+			return s.Serve(tlsKey, tlsCert, port, label)
 		},
 	}
 
 	cmd.PersistentFlags().StringVarP(&label, "label", "l", "", "Search for secrets containing label")
-	cmd.PersistentFlags().StringVarP(&frequency, "frequency", "f", "3", "Frequency to search for secrets")
 
 	cmd.PersistentFlags().StringVarP(&tlsKey, "key", "", "",
 		"Server private key for TLS. If not provided, TLS will not be used.")

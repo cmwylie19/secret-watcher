@@ -1,0 +1,5 @@
+resources:
+- secret-watcher.yaml
+
+commonLabels:
+  deployed-by: cmwylie19
