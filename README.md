@@ -14,12 +14,12 @@ _The secret watcher is rest service that calls secrets._
 
 Curl secrets from all namespaces
 
-**Kubernetes Service**
+Kubernetes Service Example
 ```bash
 kubectl run -ti --rm curler --image=nginx --restart=Never --command -- curl secret-watcher.secret-watcher:8080/secrets
 ```
 
-**OpenShift Route**
+OpenShift Route Example
 ```bash
 curl $(kubectl get route secret-watcher -n secret-watcher --template='{{ .spec.host }}')/secrets
 ```
@@ -48,14 +48,14 @@ default-token-kxrwh
 deployer-dockercfg-8hccg
 ```
 
-Curl secrets from a given namespace
+Curl secrets from a given namespace  
 
-**Kubernetes Service**
+Kubernetes Service Example
 ```bash
 kubectl run -ti --rm curler --image=nginx --restart=Never --command -- curl secret-watcher.secret-watcher:8080/secrets\?namespace\=default
 ```
 
-**OpenShift Route**
+OpenShift Route Example
 ```bash
 curl $(kubectl get route secret-watcher -n secret-watcher --template='{{ .spec.host }}')/secrets\?namespace\=default
 ```
