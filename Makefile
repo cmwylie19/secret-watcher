@@ -1,27 +1,29 @@
 # Makefile for building the secret-watcher server + docker image.
 SHELL=bash
+DOCKER_USERNAME=cmwylie19
 
 # The stage to build, one of: dev, test, prod
 # Default to dev if not set.
-# dev, test are arm64 only
-# prod is amd64 only
+# dev is compiled for amd64 architecture (Kind)
+# test is compiled for arm64 architecture (Rasberry Pi)
+# prod is compiled for amd64 architecture (OpenShift)
 
-ifndef STAGE
-	export STAGE :=dev
+ifndef ENVIRONMENT
+	export ENVIRONMENT :=prod
 endif
 
-ifeq ($(STAGE),dev)
+ifeq ($(ENVIRONMENT),dev)
+	export ARCH :=amd64
+else ifeq ($(ENVIRONMENT),test)
 	export ARCH :=arm64
-else ifeq ($(STAGE),test)
-	export ARCH :=arm64
-else ifeq ($(STAGE),prod)
+else ifeq ($(ENVIRONMENT),prod)
 	export ARCH :=amd64
 else
 	$(error STAGE must be one of: dev, test, prod)
 endif
 
 
-IMAGE ?= cmwylie19/secret-watcher:${ARCH}
+IMAGE ?= ${DOCKER_USERNAME}/secret-watcher:${ARCH}
 
 #---------------------------
 # Build the secret-watcher binary

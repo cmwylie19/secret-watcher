@@ -1,30 +1,25 @@
 # Secret Watcher
 
-_The secret watcher is a loop that watches secrets._
+_The secret watcher is rest service that calls secrets._
 
 - [Build](#build)
+- [Deploy](#deploy)
 - [Usage](#usage)
+- [Runtime Flags](#runtime-flags)
 - [Reconcile Loop](#reconcile-loop)
 
 
 
 ## Usage
 
-Deploy `secret-watcher` manifests
-
-```bash
-kubectl apply -f k8s
-```
-
-Wait for the secret-watcher to be ready
-
-```bash
-kubectl wait --for=condition=Ready pod -l app=secret-watcher -n secret-watcher
-```
-
-
 Curl secrets from all namespaces
 
+**Kubernetes Service**
+```bash
+kubectl run -ti --rm curler --image=nginx --restart=Never --command -- curl secret-watcher.secret-watcher:8080/secrets
+```
+
+**OpenShift Route**
 ```bash
 curl $(kubectl get route secret-watcher -n secret-watcher --template='{{ .spec.host }}')/secrets
 ```
@@ -55,9 +50,17 @@ deployer-dockercfg-8hccg
 
 Curl secrets from a given namespace
 
+**Kubernetes Service**
+```bash
+kubectl run -ti --rm curler --image=nginx --restart=Never --command -- curl secret-watcher.secret-watcher:8080/secrets\?namespace\=default
+```
+
+**OpenShift Route**
 ```bash
 curl $(kubectl get route secret-watcher -n secret-watcher --template='{{ .spec.host }}')/secrets\?namespace\=default
 ```
+
+
 
 output
 
@@ -73,36 +76,21 @@ deployer-token-gkkpg
 deployer-token-rnj86
 ```
 
-## Build 
+## Build
 
-_This part is only necessary if you are developing._  
+Set `ENVIRONMENT` in the `Makefile`.
 
-In the `Makefile` set `STAGE` to dev, test, or prod.
+update `DOCKER_USERNAME` in line 3 of `Makefile`.  
 
-Build application
-
-```bash
-make build/secret-watcher
-```
-
-Build docker image
-
-```bash
-make build/image
-```
-
-Push container image
-
-```bash
-make push-image
-```
-
-Build binary, build docker image, and push the image
+Build binary, build docker image, and push the image to image repo
 
 ```bash
 make all
 ```
 
+## Deploy
+
+See `k8s` [directory](./k8s/README.md#deploy)
 
 ## Reconcile Loop
 
@@ -154,15 +142,21 @@ for {
 }
 ```
 
-## Deployment Options
+## Runtime Flags
 
-With label selectors for secrets
+Serve the secret watcher on port 8080
 ```bash
-./secret-watcher serve -l app.kubernetes.io/managed-by=secret-watcher
+./secret-watcher serve 
 ```
 
 
 Run on a given port 
 ```
 ./secret-watcher serve -p 9090
+```
+
+Watch secrets by label
+
+```bash
+./secret-watcher serve -l app=secret-watcher
 ```
